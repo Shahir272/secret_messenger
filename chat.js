@@ -7,7 +7,6 @@ import {
   off 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDX8lrsj1cf3Zc0FEpp-XKlA7UYHwmWymE",
   authDomain: "chatbot-6e3d6.firebaseapp.com",
@@ -22,7 +21,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Preset channels for CST 433 modules
 const DEFAULT_ROOMS = [
   { id: "cst433_general", name: "CST 433 General", desc: "Main student lobby & queries", icon: "GEN" },
   { id: "mod1_ciphers", name: "Module 1: Classical Ciphers", desc: "Caesar, Playfair, Hill, Vigenere", icon: "M1" },
@@ -32,41 +30,41 @@ const DEFAULT_ROOMS = [
   { id: "mod5_system_sec", name: "Module 5: System Security", desc: "Intrusion, Viruses, DDoS & Certificates", icon: "M5" }
 ];
 
-// State
+// Current Auth State
+const currentUserId = localStorage.getItem("chat_user_id") || "guest_" + Math.floor(Math.random() * 1000);
+const currentUserName = localStorage.getItem("chat_user_name") || "Student";
+const currentUserRole = localStorage.getItem("chat_user_role") || "Member";
+
 let activeRoomId = null;
 let currentMessagesRef = null;
+let activeReplyTarget = null;
 
-// DOM Elements
+// Elements
 const roomsList = document.getElementById("roomsList");
 const chatArea = document.getElementById("chatArea");
 const messageInput = document.getElementById("messageInput");
-const usernameInput = document.getElementById("usernameInput");
 const sendBtn = document.getElementById("sendBtn");
 const activeRoomTitle = document.getElementById("activeRoomTitle");
 const activeRoomMeta = document.getElementById("activeRoomMeta");
 const activeRoomAvatar = document.getElementById("activeRoomAvatar");
 const myAvatar = document.getElementById("myAvatar");
+const myDisplayName = document.getElementById("myDisplayName");
+const myRoleBadge = document.getElementById("myRoleBadge");
 const searchRoomsInput = document.getElementById("searchRoomsInput");
 const newRoomBtn = document.getElementById("newRoomBtn");
 const mobileBackBtn = document.getElementById("mobileBackBtn");
 const container = document.querySelector(".multi-chat-layout");
+const replyBar = document.getElementById("replyBar");
+const replyTargetName = document.getElementById("replyTargetName");
+const replyTargetText = document.getElementById("replyTargetText");
+const cancelReplyBtn = document.getElementById("cancelReplyBtn");
 
-// Load stored username
-const savedName = localStorage.getItem("chat_user_name") || "Anonymous";
-usernameInput.value = savedName === "Anonymous" ? "" : savedName;
-updateUserAvatar(savedName);
+// Set Profile UI
+myDisplayName.textContent = currentUserName;
+myRoleBadge.textContent = currentUserRole;
+myAvatar.textContent = currentUserName.charAt(0).toUpperCase();
 
-usernameInput.addEventListener("input", (e) => {
-  const val = e.target.value.trim() || "Anonymous";
-  localStorage.setItem("chat_user_name", val);
-  updateUserAvatar(val);
-});
-
-function updateUserAvatar(name) {
-  myAvatar.textContent = (name || "A").charAt(0).toUpperCase();
-}
-
-// Render Room List
+// Render Chat Rooms
 function renderRooms(filterText = "") {
   roomsList.innerHTML = "";
   const rooms = getRooms();
@@ -96,67 +94,91 @@ function renderRooms(filterText = "") {
   });
 }
 
-// Local storage support for custom rooms
 function getRooms() {
   const custom = JSON.parse(localStorage.getItem("custom_chat_rooms") || "[]");
   return [...DEFAULT_ROOMS, ...custom];
 }
 
-// Switch Active Room
 function switchRoom(room) {
   if (activeRoomId === room.id) return;
 
-  // Detach previous listener if active
-  if (currentMessagesRef) {
-    off(currentMessagesRef);
-  }
+  if (currentMessagesRef) off(currentMessagesRef);
 
   activeRoomId = room.id;
   activeRoomTitle.textContent = room.name;
   activeRoomMeta.textContent = room.desc;
   activeRoomAvatar.textContent = room.icon || room.name.substring(0, 2).toUpperCase();
 
-  // Highlight selected room item
   document.querySelectorAll(".room-item").forEach(el => {
     el.classList.toggle("active", el.dataset.roomId === room.id);
   });
 
-  // Clear chat area
   chatArea.innerHTML = "";
-
-  // Mobile layout switch
+  clearReply();
   container.classList.add("chat-open");
 
-  // Subscribe to the new room path in Firebase
   currentMessagesRef = ref(db, `chat_rooms/${activeRoomId}`);
-
   onChildAdded(currentMessagesRef, (snapshot) => {
-    const data = snapshot.val();
-    appendMessage(data);
+    appendMessage(snapshot.val());
   });
 
   messageInput.focus();
 }
 
-// Append Message to UI
 function appendMessage(data) {
-  const currentSender = usernameInput.value.trim() || "Anonymous";
-  const isOutgoing = data.sender === currentSender;
+  // Check ownership via senderId to distinguish self vs other logins
+  const isOutgoing = data.senderId === currentUserId;
 
   const bubble = document.createElement("div");
   bubble.className = `wa-bubble ${isOutgoing ? 'outgoing' : 'incoming'}`;
 
+  let replyHTML = "";
+  if (data.replyTo) {
+    replyHTML = `
+      <div class="bubble-reply-quote">
+        <div class="quote-sender">${escapeHTML(data.replyTo.sender)}</div>
+        <div class="quote-text">${escapeHTML(data.replyTo.text)}</div>
+      </div>
+    `;
+  }
+
   bubble.innerHTML = `
-    ${!isOutgoing ? `<div class="bubble-sender">${escapeHTML(data.sender)}</div>` : ''}
+    ${!isOutgoing ? `<div class="bubble-sender">${escapeHTML(data.sender)} <span style="font-size:0.65rem; color:#8696a0;">(${escapeHTML(data.role || "Member")})</span></div>` : ''}
+    ${replyHTML}
     <div class="bubble-text">${escapeHTML(data.text)}</div>
     <div class="bubble-time">${formatTime(data.timestamp)}</div>
+    <div class="bubble-actions">
+      <button class="reply-btn">&#x21A9; Reply</button>
+    </div>
   `;
+
+  // Hook reply click
+  bubble.querySelector(".reply-btn").addEventListener("click", () => {
+    setReplyTarget(data);
+  });
 
   chatArea.appendChild(bubble);
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// Send Message
+function setReplyTarget(data) {
+  activeReplyTarget = {
+    sender: data.sender,
+    text: data.text
+  };
+  replyTargetName.textContent = `Replying to ${data.sender}`;
+  replyTargetText.textContent = data.text;
+  replyBar.style.display = "flex";
+  messageInput.focus();
+}
+
+function clearReply() {
+  activeReplyTarget = null;
+  replyBar.style.display = "none";
+}
+
+cancelReplyBtn.addEventListener("click", clearReply);
+
 function sendMessage() {
   if (!activeRoomId) {
     alert("Please select a discussion room first.");
@@ -164,17 +186,24 @@ function sendMessage() {
   }
 
   const text = messageInput.value.trim();
-  const sender = usernameInput.value.trim() || "Anonymous";
-
   if (!text) return;
 
-  push(currentMessagesRef, {
-    sender: sender,
+  const payload = {
+    senderId: currentUserId,
+    sender: currentUserName,
+    role: currentUserRole,
     text: text,
     timestamp: Date.now()
-  });
+  };
+
+  if (activeReplyTarget) {
+    payload.replyTo = activeReplyTarget;
+  }
+
+  push(currentMessagesRef, payload);
 
   messageInput.value = "";
+  clearReply();
   messageInput.focus();
 }
 
@@ -183,13 +212,13 @@ messageInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Create custom room button
+// Custom room creator
 newRoomBtn.addEventListener("click", () => {
-  const roomName = prompt("Enter a new room or topic name:");
+  const roomName = prompt("Enter a new room topic:");
   if (!roomName || !roomName.trim()) return;
 
-  const roomId = "custom_" + roomName.trim().toLowerCase().replace(/[^a-z0-9]/g, "_");
-  const desc = prompt("Enter brief description:", "Private study topic") || "";
+  const roomId = "room_" + roomName.trim().toLowerCase().replace(/[^a-z0-9]/g, "_");
+  const desc = prompt("Enter brief description:", "Discussion topic") || "";
 
   const customRooms = JSON.parse(localStorage.getItem("custom_chat_rooms") || "[]");
   if (!customRooms.some(r => r.id === roomId)) {
@@ -203,22 +232,12 @@ newRoomBtn.addEventListener("click", () => {
     localStorage.setItem("custom_chat_rooms", JSON.stringify(customRooms));
     renderRooms();
     switchRoom(newRoom);
-  } else {
-    alert("Room already exists!");
   }
 });
 
-// Search filter
-searchRoomsInput.addEventListener("input", (e) => {
-  renderRooms(e.target.value.trim());
-});
+searchRoomsInput.addEventListener("input", (e) => renderRooms(e.target.value.trim()));
+mobileBackBtn.addEventListener("click", () => container.classList.remove("chat-open"));
 
-// Mobile back button to room list
-mobileBackBtn.addEventListener("click", () => {
-  container.classList.remove("chat-open");
-});
-
-// Helper utilities
 function formatTime(timestamp) {
   if (!timestamp) return "";
   const d = new Date(timestamp);
@@ -231,6 +250,6 @@ function escapeHTML(str) {
   );
 }
 
-// Initial boot: render rooms & select general lobby by default
+// Initial Run
 renderRooms();
 switchRoom(DEFAULT_ROOMS[0]);

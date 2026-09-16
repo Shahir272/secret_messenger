@@ -523,3 +523,86 @@ body {
     display: flex;
   }
 }
+/* --- Reply Bar & Bubble Quote Styles --- */
+.wa-reply-bar {
+  background: #f0f2f5;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid #00a884;
+  border-top: 1px solid #e9edef;
+}
+
+.reply-bar-content {
+  overflow: hidden;
+}
+
+.reply-target-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #00a884;
+}
+
+.reply-target-text {
+  font-size: 0.82rem;
+  color: #54656f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reply-cancel-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #8696a0;
+  padding: 0 4px;
+}
+
+.reply-cancel-btn:hover {
+  color: #111b21;
+}
+
+/* Quote inside message bubbles */
+.bubble-reply-quote {
+  background: rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #00a884;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+}
+
+.bubble-reply-quote .quote-sender {
+  font-weight: 700;
+  color: #075e54;
+}
+
+.bubble-reply-quote .quote-text {
+  color: #54656f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Reply trigger button on bubble */
+.bubble-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reply-btn {
+  background: none;
+  border: none;
+  color: #8696a0;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.reply-btn:hover {
+  color: #075e54;
+  text-decoration: underline;
+}

@@ -14,11 +14,14 @@
       <div class="wa-sidebar-header">
         <div class="user-profile-badge">
           <div class="wa-avatar" id="myAvatar">U</div>
-          <span class="sidebar-title">Discussions</span>
+          <div>
+            <div class="sidebar-title" id="myDisplayName">User</div>
+            <div id="myRoleBadge" style="font-size: 0.72rem; color: #64748b;">Member</div>
+          </div>
         </div>
         <div class="sidebar-actions">
           <button id="newRoomBtn" title="Create or Join New Room" class="icon-btn">+</button>
-          <a href="index.html" class="icon-btn exit-link" title="Exit to Syllabus">←</a>
+          <a href="index.html" class="icon-btn exit-link" title="Logout / Switch Login">←</a>
         </div>
       </div>
 
@@ -28,14 +31,11 @@
       </div>
 
       <!-- Chat Rooms List -->
-      <div class="wa-rooms-list" id="roomsList">
-        <!-- Injected via JavaScript -->
-      </div>
+      <div class="wa-rooms-list" id="roomsList"></div>
     </aside>
 
     <!-- Right Side: Active Chat Viewport -->
     <section class="wa-main-chat" id="chatPanel">
-      <!-- Chat Header -->
       <header class="wa-header">
         <button id="mobileBackBtn" class="mobile-back-btn" title="Back to rooms">←</button>
         <div class="wa-avatar" id="activeRoomAvatar">#</div>
@@ -50,9 +50,17 @@
         <div class="empty-chat-notice">Select a discussion room on the left to start messaging.</div>
       </main>
 
+      <!-- Active Reply Preview Bar -->
+      <div id="replyBar" class="wa-reply-bar" style="display: none;">
+        <div class="reply-bar-content">
+          <span class="reply-target-name" id="replyTargetName">Replying to...</span>
+          <p class="reply-target-text" id="replyTargetText"></p>
+        </div>
+        <button id="cancelReplyBtn" class="reply-cancel-btn">&times;</button>
+      </div>
+
       <!-- Input Footer -->
       <footer class="wa-footer">
-        <input type="text" id="usernameInput" class="wa-name-input" placeholder="Your name" style="width: 130px;">
         <input type="text" id="messageInput" class="wa-msg-input" placeholder="Type a message..." autocomplete="off">
         <button id="sendBtn" class="wa-send-btn">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">

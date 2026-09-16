@@ -73,31 +73,50 @@
       <aside class="sidebar-panel">
         <div class="auth-box">
           <h3>Lab & Discussion Gateway</h3>
-          <p class="hint">Enter the session code provided by your instructor to access the real-time group chat.</p>
+          <p class="hint">Enter your personal passkey to join as your assigned user profile.</p>
           
           <form id="accessForm">
             <div class="input-group">
               <label for="passcode">Access Code</label>
-              <input type="password" id="passcode" placeholder="e.g. CST433" autocomplete="off" required>
+              <input type="password" id="passcode" placeholder="Enter personal passkey" autocomplete="off" required>
             </div>
             <button type="submit" class="primary-btn">Enter Gateway →</button>
             <p id="errorMsg" class="error-text" style="display: none;">Invalid session code. Please verify.</p>
           </form>
+
+          <div style="margin-top: 15px; font-size: 0.78rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+            <strong>Available Demo Passkeys:</strong>
+            <ul style="margin-left: 18px; margin-top: 4px;">
+              <li><code>SEC-ALICE</code> &rarr; Alice (Student)</li>
+              <li><code>SEC-BOB</code> &rarr; Bob (Student)</li>
+              <li><code>SEC-PROF</code> &rarr; Prof. Sharma (Instructor)</li>
+              <li><code>CST433</code> &rarr; Student (General)</li>
+            </ul>
+          </div>
         </div>
       </aside>
     </div>
   </main>
 
   <script>
-    // Simple verification - change 'CST433' to your desired passcode
-    const ACCESS_CODE = "CST433";
+    // Access code mapping to user profiles
+    const ACCESS_REGISTRY = {
+      "SEC-ALICE": { id: "u_alice", name: "Alice", role: "Student" },
+      "SEC-BOB":   { id: "u_bob",   name: "Bob",   role: "Student" },
+      "SEC-PROF":  { id: "u_prof",  name: "Prof. Sharma", role: "Instructor" },
+      "CST433":    { id: "u_gen",   name: "Student", role: "Member" }
+    };
 
     document.getElementById('accessForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const code = document.getElementById('passcode').value.trim();
       const errorElem = document.getElementById('errorMsg');
 
-      if (code === ACCESS_CODE) {
+      if (ACCESS_REGISTRY[code]) {
+        const user = ACCESS_REGISTRY[code];
+        localStorage.setItem("chat_user_id", user.id);
+        localStorage.setItem("chat_user_name", user.name);
+        localStorage.setItem("chat_user_role", user.role);
         window.location.href = "chat.html";
       } else {
         errorElem.style.display = "block";
