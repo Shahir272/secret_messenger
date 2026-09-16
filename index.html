@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CST 433: Security in Computing - Syllabus Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Academic Navigation Bar -->
+  <header class="univ-header">
+    <div class="header-inner">
+      <div>
+        <span class="badge">APJ AKTU • B.Tech CSE (2019 Scheme)</span>
+        <h1>CST 433 — Security in Computing</h1>
+      </div>
+      <div class="course-meta">
+        <span>Semester: <strong>S7 (Elective II)</strong></span>
+        <span>Credits: <strong>3-0-0 (3)</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="content-grid">
+      <!-- Syllabus Section -->
+      <section class="syllabus-panel">
+        <h2>Course Modules & Topics</h2>
+        
+        <article class="module-card">
+          <div class="module-num">Module 1</div>
+          <div class="module-content">
+            <h3>Foundations of Security & Classical Ciphers</h3>
+            <p>OSI security architecture, security attacks, services, and mechanisms. Cryptography vs Cryptanalysis. Classical encryption techniques, symmetric cipher model. Substitution ciphers: Monoalphabetic & Polyalphabetic, Caesar cipher, Affine cipher, Playfair cipher, Hill cipher, Vigenere cipher.</p>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="module-num">Module 2</div>
+          <div class="module-content">
+            <h3>Symmetric Key Cryptography (DES & AES)</h3>
+            <p>Block vs Stream ciphers, Product ciphers, Feistel and Non-Feistel structures. Data Encryption Standard (DES): structure, key scheduling, weaknesses, Double DES, Triple DES. Advanced Encryption Standard (AES): transformation rounds, key expansion.</p>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="module-num">Module 3</div>
+          <div class="module-content">
+            <h3>Asymmetric Key Cryptosystems</h3>
+            <p>Principles and requirements of public-key cryptography. The RSA cryptosystem: key generation, mathematical foundation, security attacks. ElGamal cryptosystem. Diffie-Hellman Key Exchange and Man-in-the-Middle (MitM) attack.</p>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="module-num">Module 4</div>
+          <div class="module-content">
+            <h3>Integrity, MAC & Digital Signatures</h3>
+            <p>Cryptographic hash function requirements, SHA-512 architecture. Message Authentication Codes (MAC): HMAC, CMAC. Digital signatures: requirements, direct vs arbitrated signatures, attack models and forgery types.</p>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="module-num">Module 5</div>
+          <div class="module-content">
+            <h3>Key Distribution & System Security</h3>
+            <p>Distribution of secret keys (symmetric & asymmetric), public key certificates. System security: Intruders, intrusion detection techniques, password protection. Malicious software: virus propagation, Trojan horses, DDoS (Direct & Reflector) countermeasures.</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- Portal Sidebar -->
+      <aside class="sidebar-panel">
+        <div class="auth-box">
+          <h3>Lab & Discussion Gateway</h3>
+          <p class="hint">Enter the session code provided by your instructor to access the real-time group chat.</p>
+          
+          <form id="accessForm">
+            <div class="input-group">
+              <label for="passcode">Access Code</label>
+              <input type="password" id="passcode" placeholder="e.g. CST433" autocomplete="off" required>
+            </div>
+            <button type="submit" class="primary-btn">Enter Gateway →</button>
+            <p id="errorMsg" class="error-text" style="display: none;">Invalid session code. Please verify.</p>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // Simple verification - change 'CST433' to your desired passcode
+    const ACCESS_CODE = "CST433";
+
+    document.getElementById('accessForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const code = document.getElementById('passcode').value.trim();
+      const errorElem = document.getElementById('errorMsg');
+
+      if (code === ACCESS_CODE) {
+        window.location.href = "chat.html";
+      } else {
+        errorElem.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>

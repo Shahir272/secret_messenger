@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CST 433 Group Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="chat-body">
+
+  <div class="wa-container">
+    <!-- Header -->
+    <header class="wa-header">
+      <div class="wa-avatar">C4</div>
+      <div class="wa-chat-info">
+        <h3>KTU CST433 Discussion Hub</h3>
+        <p id="userStatus">online</p>
+      </div>
+      <a href="index.html" class="wa-back-btn">← Exit</a>
+    </header>
+
+    <!-- Message Area -->
+    <main class="wa-chat-area" id="chatArea">
+      <!-- Dynamic messages will render here -->
+    </main>
+
+    <!-- Input Footer -->
+    <footer class="wa-footer">
+      <input type="text" id="usernameInput" class="wa-name-input" placeholder="Your name" style="width: 120px;">
+      <input type="text" id="messageInput" class="wa-msg-input" placeholder="Type a message..." autocomplete="off">
+      <button id="sendBtn" class="wa-send-btn">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Modular Firebase Script -->
+  <script type="module" src="chat.js"></script>
+</body>
+</html>
